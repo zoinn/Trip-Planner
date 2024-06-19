@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Propose Trip</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="siteCSS.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+<script>
+    $(function () {
+        $("#datepicker").datepicker({
+            minDate: 0,
+            maxDate: "+14D",
+            dateFormat: 'mm-dd-yy'
+        });
+    });
+
+    function proposeTrip() {
+        var location = document.getElementById('location').value;
+        var date = document.getElementById('datepicker').value;
+
+        $.ajax({
+            type: "GET",
+            url: "queryTrip.jsp",
+            data: { location: location, date: date },
+            dataType: "json",
+            success: function (data) {
+                updateUI(data);
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+    function displayError(message) {
+           var errorElement = document.getElementById('error-message');
+           if (!errorElement) {
+               errorElement = document.createElement('div');
+               errorElement.id = 'error-message';
+               errorElement.style.color = 'red';
+               document.body.appendChild(errorElement);
+           }
+           errorElement.textContent = message;
+       }
+    function updateUI(data) {
+        
+        var table = document.getElementById('tripTable');
+        
+         if (data.hasOwnProperty('error')) {
+            displayError(data.error);
+            return;
+        }
+        
+         if (table) {
+            table.parentNode.removeChild(table);
+        }
+            
+        
+        table = document.createElement('table');
+        table.id = 'tripTable';
+
+        var headerRow = table.insertRow(0);
+        var headers = ['Location', 'Date', 'Temperature', 'Forecast', 'Time','Followers','Create'];
+        for (var i = 0; i < headers.length; i++) {
+            var th = document.createElement('th');
+            th.textContent = headers[i];
+            headerRow.appendChild(th);
+        }
+
+        document.body.appendChild(table);
+
+
+        var dataRow = table.insertRow(-1); // -1 appends the row at the end
+        var dataFields = ['location', 'date', 'temperature', 'forecast', 'time', 'followers'];
+        for (var j = 0; j < dataFields.length; j++) {
+            var td = dataRow.insertCell(j);
+            td.textContent = data[dataFields[j]];
+        }
+
+        var createButtonCell = dataRow.insertCell(dataFields.length);
+        var createButton = document.createElement('button');
+        createButton.textContent = 'Create Trip';
+        createButton.className = 'create-button';
+        createButton.onclick = function () {
+            alert('Creating trip: ' + data.location);
+
+            var createURL = "http://localhost:8080/Cloud-Centric-Coursework/createTrip.jsp"+
+                "?location=" + encodeURIComponent(data.location) +
+                "&date=" + encodeURIComponent(data.date) +
+                "&userID=" + encodeURIComponent(localStorage.getItem('userID'));
+
+            $.ajax({
+                type: "GET",
+                url: createURL,
+                success: function(response) {
+                    // Handle the success response here
+                    console.log("CreateTrip successful:", response);
+                },
+                error: function(error) {
+                    // Handle the error response here
+                    console.log("Error", error);
+                    displayError("Location not found.");
+                }
+            });
+            
+        };
+
+        createButtonCell.appendChild(createButton);
+    }
+</script>
+<h1>Propose Trip</h1>
+<form method="post" action="">
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" placeholder="Enter location" required>
+    <label for="datepicker">Date:</label>
+    <input type="text" id="datepicker" name="date" placeholder="Select date" required>
+    <button type="button" onclick="proposeTrip()">Propose Trip</button>
+</form>
+<div id="error-message" style="color: red;"></div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <title>Trip-Finder</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+        }
+
+        li {
+            margin-right: 10px;
+        }
+
+        a {
+            text-decoration: none;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #4285f4;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: inline-block; /* Ensure inline-block for consistent spacing */
+        }
+
+        a:hover {
+            background-color: #3367d6;
+        }
+    </style>
+    </head>
+    <body>
+        <script>
+            
+            document.addEventListener('DOMContentLoaded', function () {
+                // Utility function to get the value of a cookie by name
+                 function getCookieValue(cookieName) {
+                     const cookies = document.cookie.split(';');
+                     for (const cookie of cookies) {
+                         const [name, value] = cookie.trim().split('=');
+                         if (name === cookieName) {
+                             return value;
+                         }
+                     }
+                     return null;
+                 }
+
+                     // Check if the user is logged in by checking the existence of the user token cookie
+                     function isUserLoggedIn() {
+                         return getCookieValue('userID') !== null;
+                     }
+
+                     // Example usage
+                     if (isUserLoggedIn()) {
+                         console.log('User is logged in.');
+                         // Additional logic for a logged-in user
+                     } else {
+                         console.log('User is not logged in.');
+                         // Additional logic for a non-logged-in user
+                     }
+
+                 // Check if the element with data-role exists
+                 if (!isUserLoggedIn()) {
+                     var navLinks = document.querySelectorAll('.registered');
+                     navLinks.forEach(link => {link.style.display = 'none';});
+                 }
+                 else{
+                     var navLinks = document.querySelectorAll('.registered');
+                     navLinks.forEach(link => {link.style.display = 'block';});
+                 }
+            });
+        </script>
+        <h1>Use this program to track and follow trips</h1>
+            <ul>
+                <li>
+                    <a href="register.jsp">Register Here</a>
+                </li>
+                <li>
+                    <a class="registered" href="createTrip.jsp?location=nottingham">Create Trip</a>
+                </li>
+                <li>
+                    <a class="registered" href="followTrip.jsp?location=nottingham">Follow Trip</a>
+                </li>
+                <li>
+                    <a class="registered" href="queryTrip.jsp?location=florida">Query Trip</a>
+                </li>
+                <li>
+                    <a class="registered" href="queryFollowersOfTrip.jsp?location=nottingham">Query Followers Of Trip</a>
+                </li>
+            </ul>
+
+    </body>
+</html>

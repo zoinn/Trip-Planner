@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Query Trip</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="siteCSS.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+<script>
+    $(function () {
+        $("#datepicker").datepicker({
+            minDate: 0,
+            maxDate: "+14D",
+            dateFormat: 'mm-dd-yy'
+        });
+    });
+
+    function queryTrip() {
+        var location = document.getElementById('location').value;
+        var date = document.getElementById('datepicker').value;
+
+        $.ajax({
+            type: "GET",
+            url: "queryTrip.jsp",
+            data: { location: location, date: date },
+            dataType: "json",
+            success: function (data) {
+                updateUI(data);
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+    function displayError(message) {
+           var errorElement = document.getElementById('error-message');
+           if (!errorElement) {
+               errorElement = document.createElement('div');
+               errorElement.id = 'error-message';
+               errorElement.style.color = 'red';
+               document.body.appendChild(errorElement);
+           }
+           errorElement.textContent = message;
+       }
+    function updateUI(data) {
+        var table = document.getElementById('tripTable');
+        
+         if (data.hasOwnProperty('error')) {
+            displayError(data.error);
+            return;
+        }
+
+        if (!table) {
+            table = document.createElement('table');
+            table.id = 'tripTable';
+
+            var headerRow = table.insertRow(0);
+            var headers = ['Location', 'Date', 'Temperature', 'Forecast', 'Time', 'Followers' ,'Follow'];
+            for (var i = 0; i < headers.length; i++) {
+                var th = document.createElement('th');
+                th.textContent = headers[i];
+                headerRow.appendChild(th);
+            }
+
+            document.body.appendChild(table);
+        }
+
+        var dataRow = table.insertRow(-1); // -1 appends the row at the end
+        var dataFields = ['location', 'date', 'temperature', 'forecast', 'time','followers'];
+        for (var j = 0; j < dataFields.length; j++) {
+            var td = dataRow.insertCell(j);
+            td.textContent = data[dataFields[j]];
+        }
+
+        var followButtonCell = dataRow.insertCell(dataFields.length);
+        var followButton = document.createElement('button');
+        followButton.textContent = 'Follow Trip';
+        followButton.className = 'follow-button';
+        
+        followButton.onclick = function () {
+            alert('Following trip: ' + data.location);
+            let parts = data.location.split(", ");
+            let cityName = parts[0];
+                
+            var followURL = "http://localhost:8080/Cloud-Centric-Coursework/followTrip.jsp" +
+                "?location=" + encodeURIComponent(cityName) +
+                "&date=" + encodeURIComponent(data.date) +
+                "&userID=" + encodeURIComponent(localStorage.getItem('userID'));
+
+            $.ajax({
+                type: "GET",
+                url: followURL,
+                success: function(response) {
+                    // Handle the success response here
+                    console.log("FollowTrip successful:", response);
+                },
+                error: function(error) {
+                    // Handle the error response here
+                    console.log("Error", error);
+                    displayError("Location not found.");
+                }
+            });
+            
+        };
+
+        followButtonCell.appendChild(followButton);
+    }
+</script>
+<h1>Query Trip</h1>
+<form method="post" action="">
+    <label for="location">Location:</label>
+    <input type="text" id="location" name="location" placeholder="Enter location" required>
+    <label for="datepicker">Date:</label>
+    <input type="text" id="datepicker" name="date" placeholder="Select date" required>
+    <button type="button" onclick="queryTrip()">Query Trip</button>
+</form>
+<div id="error-message" style="color: red;"></div>
+</body>
+</html>
