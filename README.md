@@ -1,6 +1,6 @@
 # Trip-Planner
 This is a website that allows users to plan trips and gives details about the trip and view other users trips.
-|NOTE - Author says Alishah in some files, I was on my sisters laptop making this project 😲|
+|NOTE - Author says Alishah in some files, I was on my sisters laptop making this project|
 # Features
 - Register / Login / Logout
 - Remembers who is logged in via cookies
